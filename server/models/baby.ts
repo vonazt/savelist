@@ -1,7 +1,8 @@
-import { InputType, Field, ObjectType } from 'type-graphql';
+import { InputType, Field, ObjectType, ArgsType } from 'type-graphql';
 
 @InputType(`NewBaby`)
 @ObjectType(`Baby`)
+@ArgsType()
 export class Baby {
   @Field()
   name: string;
