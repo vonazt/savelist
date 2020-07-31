@@ -18,6 +18,7 @@
   },
   "include": [
     "graphql/*",
-    "index.ts"
+    "index.ts",
+    "models/*"
   ]
 }
