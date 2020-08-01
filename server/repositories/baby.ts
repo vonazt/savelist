@@ -1,4 +1,4 @@
-import { model, Schema, Document, Model } from 'mongoose';
+import { model, Schema, Document } from 'mongoose';
 import { Baby } from '../models';
 
 const BabySchema = new Schema({

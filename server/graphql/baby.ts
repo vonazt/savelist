@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Resolver, Query, Mutation, Args } from 'type-graphql';
 import { Baby } from '../models';
 import { babyService } from '../services';
-import { Document } from 'mongoose';
 
 @Resolver()
 export class BabySchema {
@@ -11,7 +10,7 @@ export class BabySchema {
     return `healthy`;
   }
   @Mutation(() => Baby)
-  async create(@Args() { name, height, weight, dob }: Baby) {
+  async create(@Args() { name, height, weight, dob }: Baby): Promise<Baby> {
     return babyService.create({ name, height, weight, dob });
   }
 }
