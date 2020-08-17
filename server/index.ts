@@ -3,7 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import { DataSchema } from './graphql';
+import { SpotifySchema } from './graphql';
 
 dotenv.config();
 mongoose.connect(
@@ -13,7 +13,7 @@ mongoose.connect(
 );
 
 const start = async () => {
-  const schema = await buildSchema({ resolvers: [DataSchema] });
+  const schema = await buildSchema({ resolvers: [SpotifySchema] });
 
   const server = new ApolloServer({
     schema,

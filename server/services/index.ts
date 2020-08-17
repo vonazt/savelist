@@ -1,3 +1,3 @@
-import * as service from './data';
+import * as service from './spotify';
 
 export { service };

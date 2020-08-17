@@ -1,3 +1,3 @@
-import * as repository from './data';
+import * as repository from './spotify';
 
 export { repository };
