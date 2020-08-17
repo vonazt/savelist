@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { Resolver, Query } from 'type-graphql';
+import { Resolver, Query, Mutation } from 'type-graphql';
 import { service } from '../services';
 import { Track } from '../models';
 
 @Resolver()
 export class SpotifySchema {
-  @Query(() => String)
-  async getCollectiblesPlaylist(): Promise<string> {
-    return service.getCollectiblesPlaylist();
+  @Mutation(() => String)
+  async saveCollectiblesPlaylist(): Promise<string> {
+    return service.saveCollectiblesPlaylist();
   }
   @Query(() => [Track])
   async listCollectiblesPlaylist(): Promise<Track[]> {

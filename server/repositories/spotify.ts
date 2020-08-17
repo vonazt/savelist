@@ -1,32 +1,9 @@
-import { model, Schema, Document, Model } from 'mongoose';
 import axios from 'axios';
-import { Track } from '../models';
+import { Track, ISpotifyTrack, IBulkWrite, ITrackDocument } from '../models';
 import qs from 'qs';
-import fs from 'fs';
+import { CollectiblesModel } from './mongoose';
 
-interface SpotifyTrack {
-  track: {
-    name: string;
-    album: { name: string };
-    artists: { name: string }[];
-    id: string;
-  };
-}
-
-interface TrackDocument extends Document {
-  track: string;
-  album: string;
-  artists: string[];
-  spotifyId: string;
-}
-
-interface BulkWrite {
-  upsertedCount: number;
-  modifiedCount: number;
-  matchedCount: number;
-}
-
-export const getCollectiblesPlaylist = async (): Promise<string> => {
+export const getSpotifyAccessToken = async (): Promise<string> => {
   const data = { grant_type: `client_credentials` };
   const {
     data: { access_token: accessToken },
@@ -39,29 +16,29 @@ export const getCollectiblesPlaylist = async (): Promise<string> => {
       'content-type': 'application/x-www-form-urlencoded',
     },
   });
-  console.log(`Fetching collectibles tracks...`);
-  console.time(`Fetched collectibles tracks in`);
-  const collectiblesTracks = await getCollectiblesTracks(
-    `https://api.spotify.com/v1/playlists/546C1VqlSpUXRAs0zZQ0jZ/tracks`,
-    accessToken,
-  );
-  console.timeEnd(`Fetched collectibles tracks in`);
-  fs.writeFileSync(`./collectibles.json`, JSON.stringify(collectiblesTracks));
-  console.log(`Bulk writing tracks to DB...`);
-  console.time(`Bulk wrote tracks in`);
-  const { upsertedCount, modifiedCount, matchedCount } = await bulkWriteTracks(
-    collectiblesTracks,
-  );
-  console.timeEnd(`Bulk wrote tracks in`);
-  return `Upserted ${upsertedCount} tracks, modified ${modifiedCount} tracks, matched ${matchedCount} tracks`;
+  return accessToken;
 };
 
-const allTracks: Track[] = [];
+export const listCollectiblesTracks = async (
+  accessToken: string,
+): Promise<ISpotifyTrack[]> => {
+  console.log(`Fetching collectibles tracks...`);
+  console.time(`Fetched collectibles tracks in`);
+  const collectiblesTracks = await listCollectiblesTracksRecursive(
+    `https://api.spotify.com/v1/playlists/546C1VqlSpUXRAs0zZQ0jZ/tracks`,
+    accessToken,
+    [],
+  );
+  console.timeEnd(`Fetched collectibles tracks in`);
+  return collectiblesTracks;
+};
 
-const getCollectiblesTracks = async (
+
+const listCollectiblesTracksRecursive = async (
   nextUrl: string,
   accessToken: string,
-): Promise<Track[]> => {
+  previousTracks: ISpotifyTrack[],
+): Promise<ISpotifyTrack[]> => {
   const {
     data: { items, next },
   } = await axios({
@@ -72,40 +49,21 @@ const getCollectiblesTracks = async (
     },
   });
 
-  const tracks = items.map(
-    ({ track: { name, album, artists, id } }: SpotifyTrack) => {
-      return {
-        track: name,
-        album: album.name,
-        artists: artists.map(({ name }) => name),
-        spotifyId: id,
-      };
-    },
-  );
-
-  allTracks.push(...tracks);
+  const allTracks = [...previousTracks, ...items];
 
   if (next) {
-    return getCollectiblesTracks(next, accessToken);
+    return listCollectiblesTracksRecursive(next, accessToken, allTracks);
   } else {
     return allTracks;
   }
 };
 
-const TrackSchema = new Schema({
-  track: String,
-  album: String,
-  artists: [String],
-  spotifyId: String,
-});
+export const bulkWriteTracksToMongoDB = async (
+  tracks: Track[],
+): Promise<IBulkWrite> => {
+  console.log(`Bulk writing tracks to DB...`);
+  console.time(`Bulk wrote tracks in`);
 
-const connectToSchema = async <T extends Document>(
-  collection: string,
-  schema: Schema,
-): Promise<Model<T>> => model<T>(collection, schema);
-
-const bulkWriteTracks = async (tracks: Track[]): Promise<BulkWrite> => {
-  const SpotifyModel = await connectToSchema(`collectibles`, TrackSchema);
   const bulkWriteQuery = tracks.map((track: Track) => {
     return {
       updateOne: {
@@ -119,14 +77,15 @@ const bulkWriteTracks = async (tracks: Track[]): Promise<BulkWrite> => {
     upsertedCount,
     matchedCount,
     modifiedCount,
-  } = await SpotifyModel.bulkWrite(bulkWriteQuery);
+  } = await CollectiblesModel.bulkWrite(bulkWriteQuery);
+
+  console.timeEnd(`Bulk wrote tracks in`);
   return { upsertedCount, matchedCount, modifiedCount };
 };
 
 export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
-  const SpotifyModel = await connectToSchema(`collectibles`, TrackSchema);
-  const data = (await SpotifyModel.find({}, null, {
+  const collectiblesTracks = (await CollectiblesModel.find({}, null, {
     lean: true,
-  })) as TrackDocument[];
-  return data;
+  })) as ITrackDocument[];
+  return collectiblesTracks;
 };
