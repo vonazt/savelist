@@ -10,8 +10,8 @@ export class Data {
   @Field()
   age: number;
 
-  @Field({nullable: true})
-  _id: string
+  @Field({ nullable: true })
+  _id: string;
 }
 
 @InputType(`UpdateData`)

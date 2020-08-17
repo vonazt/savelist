@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Resolver, Query, Mutation, Arg, Args } from 'type-graphql';
+import { Resolver, Query, Mutation, Arg } from 'type-graphql';
 import { Data, UpdateData } from '../models';
 import { service } from '../services';
 
