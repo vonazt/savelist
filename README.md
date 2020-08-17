@@ -1,3 +1,3 @@
-### Fullstack template
+### Spotify backup
 
-Template for app using TypeScript, GraphQL, MongoDB/mongoose, React and TailwindCSS
+Currently used for backing up Spotify Collectibles playlist to MongoDB and saving as local json file
