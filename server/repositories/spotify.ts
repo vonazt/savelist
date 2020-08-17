@@ -20,6 +20,12 @@ interface TrackDocument extends Document {
   spotifyId: string;
 }
 
+interface BulkWrite {
+  upsertedCount: number;
+  modifiedCount: number;
+  matchedCount: number;
+}
+
 export const getCollectiblesPlaylist = async (): Promise<string> => {
   const data = { grant_type: `client_credentials` };
   const {
@@ -41,12 +47,12 @@ export const getCollectiblesPlaylist = async (): Promise<string> => {
   );
   console.timeEnd(`Fetched collectibles tracks in`);
   fs.writeFileSync(`./collectibles.json`, JSON.stringify(collectiblesTracks));
-  console.log(`Bulk writing tracks to DB...`)
-  console.time(`Bulk wrote tracks in`)
+  console.log(`Bulk writing tracks to DB...`);
+  console.time(`Bulk wrote tracks in`);
   const { upsertedCount, modifiedCount, matchedCount } = await bulkWriteTracks(
     collectiblesTracks,
   );
-  console.timeEnd(`Bulk wrote tracks in`)
+  console.timeEnd(`Bulk wrote tracks in`);
   return `Upserted ${upsertedCount} tracks, modified ${modifiedCount} tracks, matched ${matchedCount} tracks`;
 };
 
@@ -98,13 +104,7 @@ const connectToSchema = async <T extends Document>(
   schema: Schema,
 ): Promise<Model<T>> => model<T>(collection, schema);
 
-const bulkWriteTracks = async (
-  tracks: Track[],
-): Promise<{
-  upsertedCount: number;
-  modifiedCount: number;
-  matchedCount: number;
-}> => {
+const bulkWriteTracks = async (tracks: Track[]): Promise<BulkWrite> => {
   const SpotifyModel = await connectToSchema(`Spotify`, TrackSchema);
   const bulkWriteQuery = tracks.map((track: Track) => {
     return {
