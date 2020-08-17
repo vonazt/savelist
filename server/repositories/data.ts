@@ -46,7 +46,7 @@ export const update = async (
   return updatedData;
 };
 
-export const deleteOne = async (_id: string): Promise<String> => {
+export const deleteOne = async (_id: string): Promise<string> => {
   const DataModel = await connectToSchema(`Data`, DataSchema);
   const deleteResult = (await DataModel.findByIdAndDelete({
     _id,

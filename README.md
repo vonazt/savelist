@@ -1,3 +1,3 @@
-### ANAIS BABY TRACKER
+### Fullstack template
 
-An app for keeping track of my baby daughter. An experiment in using React Native and developing for Android for the first time. 
+Template for app using TypeScript, GraphQL, MongoDB/mongoose, React and TailwindCSS

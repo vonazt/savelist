@@ -18,7 +18,7 @@ export class DataSchema {
     return service.update(id, data)
   }
   @Mutation(() => String)
-  async delete(@Arg(`id`) id: string): Promise<String> {
+  async delete(@Arg(`id`) id: string): Promise<string> {
     return service.deleteOne(id)
   }
 }
