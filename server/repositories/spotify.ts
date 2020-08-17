@@ -105,7 +105,7 @@ const connectToSchema = async <T extends Document>(
 ): Promise<Model<T>> => model<T>(collection, schema);
 
 const bulkWriteTracks = async (tracks: Track[]): Promise<BulkWrite> => {
-  const SpotifyModel = await connectToSchema(`Spotify`, TrackSchema);
+  const SpotifyModel = await connectToSchema(`collectibles`, TrackSchema);
   const bulkWriteQuery = tracks.map((track: Track) => {
     return {
       updateOne: {
@@ -124,7 +124,7 @@ const bulkWriteTracks = async (tracks: Track[]): Promise<BulkWrite> => {
 };
 
 export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
-  const SpotifyModel = await connectToSchema(`Spotify`, TrackSchema);
+  const SpotifyModel = await connectToSchema(`collectibles`, TrackSchema);
   const data = (await SpotifyModel.find({}, null, {
     lean: true,
   })) as TrackDocument[];
