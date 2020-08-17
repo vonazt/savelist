@@ -40,10 +40,14 @@ export const getCollectiblesPlaylist = async (): Promise<string> => {
     accessToken,
   );
   console.timeEnd(`Fetched collectibles tracks in`);
-  console.log('all tracks', collectiblesTracks);
   fs.writeFileSync(`./collectibles.json`, JSON.stringify(collectiblesTracks));
-  const upsertedCount = await bulkWriteTracks(collectiblesTracks);
-  return `Successfully uploaded ${upsertedCount} tracks`;
+  console.log(`Bulk writing tracks to DB...`)
+  console.time(`Bulk wrote tracks in`)
+  const { upsertedCount, modifiedCount, matchedCount } = await bulkWriteTracks(
+    collectiblesTracks,
+  );
+  console.timeEnd(`Bulk wrote tracks in`)
+  return `Upserted ${upsertedCount} tracks, modified ${modifiedCount} tracks, matched ${matchedCount} tracks`;
 };
 
 const allTracks: Track[] = [];
@@ -94,7 +98,13 @@ const connectToSchema = async <T extends Document>(
   schema: Schema,
 ): Promise<Model<T>> => model<T>(collection, schema);
 
-const bulkWriteTracks = async (tracks: Track[]): Promise<number> => {
+const bulkWriteTracks = async (
+  tracks: Track[],
+): Promise<{
+  upsertedCount: number;
+  modifiedCount: number;
+  matchedCount: number;
+}> => {
   const SpotifyModel = await connectToSchema(`Spotify`, TrackSchema);
   const bulkWriteQuery = tracks.map((track: Track) => {
     return {
@@ -105,8 +115,12 @@ const bulkWriteTracks = async (tracks: Track[]): Promise<number> => {
       },
     };
   });
-  const { upsertedCount } = await SpotifyModel.bulkWrite(bulkWriteQuery);
-  return upsertedCount;
+  const {
+    upsertedCount,
+    matchedCount,
+    modifiedCount,
+  } = await SpotifyModel.bulkWrite(bulkWriteQuery);
+  return { upsertedCount, matchedCount, modifiedCount };
 };
 
 export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
