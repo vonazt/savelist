@@ -1,3 +1,3 @@
-import * as babyRepository from './baby';
+import * as repository from './data';
 
-export { babyRepository };
+export { repository };

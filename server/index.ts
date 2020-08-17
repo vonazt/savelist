@@ -3,7 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import { BabySchema } from './graphql';
+import { DataSchema } from './graphql';
 
 dotenv.config();
 mongoose.connect(
@@ -13,7 +13,7 @@ mongoose.connect(
 );
 
 const start = async () => {
-  const schema = await buildSchema({ resolvers: [BabySchema] });
+  const schema = await buildSchema({ resolvers: [DataSchema] });
 
   const server = new ApolloServer({
     schema,

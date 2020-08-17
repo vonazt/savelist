@@ -1,1 +1,1 @@
-export * from './baby'
+export * from './data'

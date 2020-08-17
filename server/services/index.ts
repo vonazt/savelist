@@ -1,3 +1,3 @@
-import * as babyService from './baby';
+import * as service from './data';
 
-export { babyService };
+export { service };
