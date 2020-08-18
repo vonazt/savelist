@@ -3,6 +3,8 @@ import { Track, ISpotifyTrack, IBulkWrite, ITrackDocument } from '../models';
 import qs from 'qs';
 import { CollectiblesModel } from './mongoose';
 
+const baseSpotifyApiUrl = `https://api.spotify.com/v1`;
+
 export const getSpotifyAccessToken = async (): Promise<string> => {
   const data = { grant_type: `client_credentials` };
   const {
@@ -25,14 +27,13 @@ export const listCollectiblesTracks = async (
   console.log(`Fetching collectibles tracks...`);
   console.time(`Fetched collectibles tracks in`);
   const collectiblesTracks = await listCollectiblesTracksRecursive(
-    `https://api.spotify.com/v1/playlists/546C1VqlSpUXRAs0zZQ0jZ/tracks`,
+    `${baseSpotifyApiUrl}/playlists/546C1VqlSpUXRAs0zZQ0jZ/tracks`,
     accessToken,
     [],
   );
   console.timeEnd(`Fetched collectibles tracks in`);
   return collectiblesTracks;
 };
-
 
 const listCollectiblesTracksRecursive = async (
   nextUrl: string,
@@ -89,3 +90,5 @@ export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
   })) as ITrackDocument[];
   return collectiblesTracks;
 };
+
+

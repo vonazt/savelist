@@ -1,9 +1,12 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { SpotifySchema } from './graphql';
+import authRoutes from './routes/auth';
 
 dotenv.config();
 
@@ -25,12 +28,20 @@ const start = async () => {
   });
 
   const app = express();
+  app.use(cors());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json());
+
+  app.use('/', authRoutes);
+
+  // Auth middleware
+  // app.use(auth);
 
   server.applyMiddleware({ app, path: '/graphql' });
 
   app.listen({ port: process.env.SERVER_PORT }, () => {
     console.log(
-      `Apollo Server on http://localhost:${process.env.SERVER_PORT}/graphql`,
+      `Server listening on http://localhost:${process.env.SERVER_PORT}\nApollo Server listening on http://localhost:${process.env.SERVER_PORT}/graphql`,
     );
   });
 };
