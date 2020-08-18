@@ -40,7 +40,7 @@ export const callback: RequestHandler = async (req, res) => {
   });
 
   const query = querystring.stringify({ access_token, refresh_token });
-  res.redirect(`http://localhost:3000?${query}`);
+  res.redirect(`${process.env.FRONT_END_URI}?${query}`);
 };
 
 export const refresh: RequestHandler = async (req, res) => {
@@ -62,5 +62,5 @@ export const refresh: RequestHandler = async (req, res) => {
   });
 
   const query = querystring.stringify({ access_token });
-  res.redirect(`http://localhost:3000?${query}`);
+  res.redirect(`${process.env.FRONT_END_URI}?${query}`);
 };
