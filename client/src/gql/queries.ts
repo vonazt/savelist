@@ -1,11 +1,7 @@
 import { gql } from "@apollo/client";
 
-export const LIST_DATA = gql`
-  query listData {
-    list {
-      name
-      age
-      _id
-    }
+export const LIST_PLAYLISTS = gql`
+  query listPlaylists {
+    listPlaylists
   }
 `;

@@ -5,6 +5,43 @@ import { CollectiblesModel } from './mongoose';
 
 const baseSpotifyApiUrl = `https://api.spotify.com/v1`;
 
+interface ISpotifyPlaylist {
+  collaborative: boolean;
+  description: string;
+  external_urls: { [key: string]: string };
+  href: string;
+  id: string;
+  images: ISpotiftyImage[];
+  name: string;
+  owner: ISpotifyOwner;
+  primary_color: string;
+  public: boolean;
+  snapshot_id: string;
+  tracks: ISpotifyPlaylistTracks;
+  type: string;
+  uri: string;
+}
+
+interface ISpotiftyImage {
+  height: number;
+  url: string;
+  width: number;
+}
+
+interface ISpotifyOwner {
+  display_name: string;
+  external_urls: { [key: string]: string };
+  href: string;
+  id: string;
+  type: string;
+  uri: string;
+}
+
+interface ISpotifyPlaylistTracks {
+  href: string;
+  total: number;
+}
+
 export const getSpotifyAccessToken = async (): Promise<string> => {
   const data = { grant_type: `client_credentials` };
   const {
@@ -91,4 +128,30 @@ export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
   return collectiblesTracks;
 };
 
+export const listUserPlaylistsRecursive = async (
+  accessToken: string,
+  url: string,
+  prevPlaylists: ISpotifyPlaylist[],
+): Promise<ISpotifyPlaylist[]> => {
+  console.log('here');
+  const response = await axios({
+    method: `GET`,
+    url,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  // console.log('going round, next is', response.data.next);
+  // console.log('response is', response);
+  const allPlaylists = [...prevPlaylists, ...response.data.items];
 
+  if (response.data.next) {
+    return listUserPlaylistsRecursive(
+      accessToken,
+      response.data.next,
+      allPlaylists,
+    );
+  } else {
+    return allPlaylists;
+  }
+};

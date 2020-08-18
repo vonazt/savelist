@@ -7,6 +7,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { SpotifySchema } from './graphql';
 import authRoutes from './routes/auth';
+import authMiddleware from './middleware/auth'
 
 dotenv.config();
 
@@ -25,12 +26,16 @@ const start = async () => {
 
   const server = new ApolloServer({
     schema,
+    context: (integrationContext) => ({
+      accessToken: integrationContext.req.headers.accesstoken,
+    }),
   });
 
   const app = express();
   app.use(cors());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
+  app.use(authMiddleware)
 
   app.use('/', authRoutes);
 

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Resolver, Query, Mutation } from 'type-graphql';
+import { Resolver, Query, Mutation, Ctx } from 'type-graphql';
 import { service } from '../services';
 import { Track } from '../models';
 
@@ -11,6 +11,11 @@ export class SpotifySchema {
   }
   @Query(() => [Track])
   async listCollectiblesPlaylist(): Promise<Track[]> {
-    return service.listCollectiblesPlaylist()
+    return service.listCollectiblesPlaylist();
+  }
+  @Query(() => String)
+  async listPlaylists(@Ctx() ctx: { accessToken: string }): Promise<string> {
+    console.log('acess goken is', ctx.accessToken)
+    return service.listUserPlaylists(ctx.accessToken)
   }
 }
