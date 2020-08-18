@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Track, ISpotifyTrack, IBulkWrite, ITrackDocument } from '../models';
 import qs from 'qs';
 import { CollectiblesModel } from './mongoose';
+import { repository } from '../repositories';
 
 const baseSpotifyApiUrl = `https://api.spotify.com/v1`;
 
@@ -155,3 +156,51 @@ export const listUserPlaylistsRecursive = async (
     return allPlaylists;
   }
 };
+
+export const validateToken = async (accessToken: string, refreshToken: string) => {
+  console.log('FRERERE', refreshToken)
+  try {
+    const response = await axios({
+      method: `GET`,
+      url: `${baseSpotifyApiUrl}/me`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    // console.log('response is', status);
+  } catch (err) {
+    console.error(`ASJHASJAHSerror is`, err.response.status);
+    if (err.response.status === 401) {
+      try {
+        console.log('in try')
+        const accessToken = await doRefreshToken(refreshToken)
+      } catch(err) {
+        console.error(err)
+        // return false
+      }
+    }
+  }
+};
+
+const doRefreshToken = async (refresh_token: string): Promise<string> => {
+  const data = {
+    refresh_token: `ajshajsh`,
+    grant_type: 'refresh_token',
+  };
+
+  const {
+    data: { access_token },
+  } = await axios({
+    method: `POST`,
+    url: `https://accounts.spotify.com/api/token`,
+    data: qs.stringify(data),
+    headers: {
+      Authorization: `Basic ${process.env.SPOTIFY_AUTH_SECRET}`,
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  console.log('access token', access_token)
+
+  return access_token
+}
