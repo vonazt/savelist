@@ -3,7 +3,9 @@ import { useQuery } from "@apollo/client";
 import { LIST_PLAYLISTS } from "./gql";
 
 export const Home: React.FC<{}> = () => {
-  const { data } = useQuery<string>(LIST_PLAYLISTS);
+  const { data, error } = useQuery<string>(LIST_PLAYLISTS);
+  console.log(`data is`, data)
+  console.log('errreor is', error?.graphQLErrors)
   const accessToken = localStorage.getItem(`accessToken`);
   return (
     <div className="container mx-auto">

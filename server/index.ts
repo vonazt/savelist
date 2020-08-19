@@ -3,11 +3,12 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { SpotifySchema } from './graphql';
 import authRoutes from './routes/auth';
-import authMiddleware from './middleware/auth'
+import authMiddleware from './middleware/auth';
+import { repository } from './repositories';
 
 dotenv.config();
 
@@ -24,23 +25,24 @@ const start = async () => {
     console.error(`Error connecting to MongoDB`, err);
   }
 
-  const server = new ApolloServer({
-    schema,
-    context: (integrationContext) => ({
-      accessToken: integrationContext.req.headers.accesstoken,
-    }),
-  });
-
   const app = express();
   app.use(cors());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use(authMiddleware)
-
   app.use('/', authRoutes);
+  // app.use(authMiddleware);
 
-  // Auth middleware
-  // app.use(auth);
+  const server = new ApolloServer({
+    schema,
+    context: async ({ req }) => {
+      const accessToken = await repository.validateToken(
+        req.headers.accesstoken as string,
+        req.headers.refreshtoken as string,
+      );
+      if (!accessToken) throw new AuthenticationError(`Access token and refresh token have expired. Please login to Spotify again`);
+      return { accessToken };
+    },
+  });
 
   server.applyMiddleware({ app, path: '/graphql' });
 

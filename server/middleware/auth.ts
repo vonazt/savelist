@@ -1,13 +1,17 @@
-import { RequestHandler } from 'express';
-import {repository} from '../repositories'
+import { repository } from '../repositories';
+import { AuthenticationError } from 'apollo-server-express';
 
-const authMiddleware: RequestHandler = (
-  {headers: {accesstoken, refreshtoken}},
-  res,
-  next,
-) => {
-  // console.log('CCESSS', req.headers)
-  const validateToken = repository.validateToken(accesstoken as string, refreshtoken as string)
+const authMiddleware = async (
+  prevAccessToken: string,
+  refreshToken: string,
+): Promise<string> => {
+  const accessToken = await repository.validateToken(prevAccessToken, refreshToken);
+  if (!accessToken) {
+    throw new AuthenticationError(
+      `Access token and refresh token have expired - please login to Spotify again`,
+    );
+  }
+  return accessToken;
 };
 
 export default authMiddleware;

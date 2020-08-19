@@ -157,26 +157,33 @@ export const listUserPlaylistsRecursive = async (
   }
 };
 
-export const validateToken = async (accessToken: string, refreshToken: string) => {
-  console.log('FRERERE', refreshToken)
+export const validateToken = async (
+  accessToken: string,
+  refreshToken: string,
+): Promise<string> => {
   try {
-    const response = await axios({
+    await axios({
       method: `GET`,
       url: `${baseSpotifyApiUrl}/me`,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    // console.log('response is', status);
+    console.log(`access token still valid`)
+    return accessToken
   } catch (err) {
-    console.error(`ASJHASJAHSerror is`, err.response.status);
+    console.error(`invalid token with status: `, err.response.status);
     if (err.response.status === 401) {
       try {
-        console.log('in try')
-        const accessToken = await doRefreshToken(refreshToken)
-      } catch(err) {
-        console.error(err)
-        // return false
+        console.log('attempting to refresh token');
+        const newAccessToken = await doRefreshToken(refreshToken);
+        return newAccessToken;
+      } catch (err) {
+        console.error(
+          `refresh token invalid with status: `,
+          err.response.status,
+        );
+        return null;
       }
     }
   }
@@ -184,7 +191,7 @@ export const validateToken = async (accessToken: string, refreshToken: string) =
 
 const doRefreshToken = async (refresh_token: string): Promise<string> => {
   const data = {
-    refresh_token: `ajshajsh`,
+    refresh_token,
     grant_type: 'refresh_token',
   };
 
@@ -200,7 +207,7 @@ const doRefreshToken = async (refresh_token: string): Promise<string> => {
     },
   });
 
-  console.log('access token', access_token)
+  console.log('generated fresh access token', access_token);
 
-  return access_token
-}
+  return access_token;
+};
