@@ -7,7 +7,6 @@ import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { SpotifySchema } from './graphql';
 import authRoutes from './routes/auth';
-import authMiddleware from './middleware/auth';
 import { repository } from './repositories';
 
 dotenv.config();
@@ -26,20 +25,23 @@ const start = async () => {
   }
 
   const app = express();
-  app.use(cors());
+  app.use(cors({ exposedHeaders: `accessToken` }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use('/', authRoutes);
-  // app.use(authMiddleware);
 
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
+    context: async ({ req, res }) => {
       const accessToken = await repository.validateToken(
         req.headers.accesstoken as string,
         req.headers.refreshtoken as string,
       );
-      if (!accessToken) throw new AuthenticationError(`Access token and refresh token have expired. Please login to Spotify again`);
+      if (!accessToken)
+        throw new AuthenticationError(
+          `Access token and refresh token have expired. Please login to Spotify again`,
+        );
+      res.header({ accessToken });
       return { accessToken };
     },
   });

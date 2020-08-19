@@ -16,6 +16,78 @@ export class Track {
   spotifyId: string;
 }
 
+@ObjectType()
+class ExternalUrls {
+  @Field()
+  spotify: string;
+}
+
+@ObjectType()
+class SpotiftyImage {
+  @Field({ nullable: true })
+  height: number;
+  @Field()
+  url: string;
+  @Field({ nullable: true })
+  width: number;
+}
+
+@ObjectType()
+class SpotifyOwner {
+  @Field()
+  display_name: string;
+  @Field(() => ExternalUrls)
+  external_urls: ExternalUrls;
+  @Field()
+  href: string;
+  @Field()
+  id: string;
+  @Field()
+  type: string;
+  @Field()
+  uri: string;
+}
+
+@ObjectType()
+class SpotifyPlaylistTracks {
+  @Field()
+  href: string;
+  @Field()
+  total: number;
+}
+
+@ObjectType()
+export class SpotifyPlaylist {
+  @Field()
+  collaborative: boolean;
+  @Field()
+  description: string;
+  @Field(() => ExternalUrls)
+  external_urls: ExternalUrls;
+  @Field()
+  href: string;
+  @Field()
+  id: string;
+  @Field(() => [SpotiftyImage])
+  images: SpotiftyImage[];
+  @Field()
+  name: string;
+  @Field()
+  owner: SpotifyOwner;
+  @Field()
+  primary_color: string;
+  @Field()
+  public: boolean;
+  @Field()
+  snapshot_id: string;
+  @Field(() => SpotifyPlaylistTracks)
+  tracks: SpotifyPlaylistTracks;
+  @Field()
+  type: string;
+  @Field()
+  uri: string;
+}
+
 export interface ISpotifyTrack {
   track: {
     name: string;

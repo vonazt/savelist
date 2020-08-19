@@ -1,5 +1,5 @@
 import { repository } from '../repositories';
-import { ISpotifyTrack } from '../models';
+import { ISpotifyTrack, SpotifyPlaylist } from '../models';
 import fs from 'fs';
 
 export const saveCollectiblesPlaylist = async (): Promise<string> => {
@@ -26,7 +26,7 @@ export const saveCollectiblesPlaylist = async (): Promise<string> => {
 
 export const listCollectiblesPlaylist = repository.listCollectiblesPlaylist;
 
-export const listUserPlaylists = async (accessToken: string) => {
+export const listUserPlaylists = async (accessToken: string): Promise<SpotifyPlaylist[]> => {
   console.log(`Fetching user's playlists...`)
   console.time(`Fetched playlists in`)
   const playlists = await repository.listUserPlaylistsRecursive(
@@ -35,5 +35,5 @@ export const listUserPlaylists = async (accessToken: string) => {
     []
   );
   console.timeEnd(`Fetched playlists in`)
-  // console.log('playlists are', playlists)
+  return playlists
 };

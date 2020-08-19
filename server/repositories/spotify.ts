@@ -1,47 +1,9 @@
 import axios from 'axios';
-import { Track, ISpotifyTrack, IBulkWrite, ITrackDocument } from '../models';
+import { Track, ISpotifyTrack, IBulkWrite, ITrackDocument, SpotifyPlaylist } from '../models';
 import qs from 'qs';
 import { CollectiblesModel } from './mongoose';
-import { repository } from '../repositories';
 
 const baseSpotifyApiUrl = `https://api.spotify.com/v1`;
-
-interface ISpotifyPlaylist {
-  collaborative: boolean;
-  description: string;
-  external_urls: { [key: string]: string };
-  href: string;
-  id: string;
-  images: ISpotiftyImage[];
-  name: string;
-  owner: ISpotifyOwner;
-  primary_color: string;
-  public: boolean;
-  snapshot_id: string;
-  tracks: ISpotifyPlaylistTracks;
-  type: string;
-  uri: string;
-}
-
-interface ISpotiftyImage {
-  height: number;
-  url: string;
-  width: number;
-}
-
-interface ISpotifyOwner {
-  display_name: string;
-  external_urls: { [key: string]: string };
-  href: string;
-  id: string;
-  type: string;
-  uri: string;
-}
-
-interface ISpotifyPlaylistTracks {
-  href: string;
-  total: number;
-}
 
 export const getSpotifyAccessToken = async (): Promise<string> => {
   const data = { grant_type: `client_credentials` };
@@ -132,9 +94,8 @@ export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
 export const listUserPlaylistsRecursive = async (
   accessToken: string,
   url: string,
-  prevPlaylists: ISpotifyPlaylist[],
-): Promise<ISpotifyPlaylist[]> => {
-  console.log('here');
+  prevPlaylists: SpotifyPlaylist[],
+): Promise<SpotifyPlaylist[]> => {
   const response = await axios({
     method: `GET`,
     url,
@@ -142,8 +103,6 @@ export const listUserPlaylistsRecursive = async (
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  // console.log('going round, next is', response.data.next);
-  // console.log('response is', response);
   const allPlaylists = [...prevPlaylists, ...response.data.items];
 
   if (response.data.next) {
