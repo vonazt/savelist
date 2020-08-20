@@ -2,7 +2,6 @@ import axios, { AxiosRequestConfig } from 'axios';
 import {
   Track,
   ISpotifyTrack,
-  IBulkWrite,
   ITrackDocument,
   SpotifyPlaylist,
 } from '../models';
@@ -31,25 +30,12 @@ export const getSpotifyAccessToken = async (): Promise<string> => {
   return accessToken;
 };
 
-export const listCollectiblesTracks = async (
-  accessToken: string,
-): Promise<ISpotifyTrack[]> => {
-  console.log(`Fetching collectibles tracks...`);
-  console.time(`Fetched collectibles tracks in`);
-  const collectiblesTracks = await listCollectiblesTracksRecursive(
-    `${baseSpotifyApiUrl}/playlists/546C1VqlSpUXRAs0zZQ0jZ/tracks`,
-    accessToken,
-    [],
-  );
-  console.timeEnd(`Fetched collectibles tracks in`);
-  return collectiblesTracks;
-};
-
-const listCollectiblesTracksRecursive = async (
+export const listPlaylistTracksRecursive = async (
   nextUrl: string,
   accessToken: string,
-  previousTracks: ISpotifyTrack[],
+  previousTracks: ISpotifyTrack[]
 ): Promise<ISpotifyTrack[]> => {
+
   const {
     data: { items, next },
   } = await axios({
@@ -63,36 +49,12 @@ const listCollectiblesTracksRecursive = async (
   const allTracks = [...previousTracks, ...items];
 
   if (next) {
-    return listCollectiblesTracksRecursive(next, accessToken, allTracks);
+    return listPlaylistTracksRecursive(next, accessToken, allTracks);
   } else {
     return allTracks;
   }
 };
 
-export const bulkWriteTracksToMongoDB = async (
-  tracks: Track[],
-): Promise<IBulkWrite> => {
-  console.log(`Bulk writing tracks to DB...`);
-  console.time(`Bulk wrote tracks in`);
-
-  const bulkWriteQuery = tracks.map((track: Track) => {
-    return {
-      updateOne: {
-        filter: { spotifyId: track.spotifyId },
-        update: track,
-        upsert: true,
-      },
-    };
-  });
-  const {
-    upsertedCount,
-    matchedCount,
-    modifiedCount,
-  } = await CollectiblesModel.bulkWrite(bulkWriteQuery);
-
-  console.timeEnd(`Bulk wrote tracks in`);
-  return { upsertedCount, matchedCount, modifiedCount };
-};
 
 export const listCollectiblesPlaylist = async (): Promise<Track[]> => {
   const collectiblesTracks = (await CollectiblesModel.find({}, null, {
@@ -106,21 +68,19 @@ export const listUserPlaylistsRecursive = async (
   url: string,
   prevPlaylists: SpotifyPlaylist[],
 ): Promise<SpotifyPlaylist[]> => {
-  const response = await axios({
+  const {
+    data: { items, next },
+  } = await axios({
     method: `GET`,
     url,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  const allPlaylists = [...prevPlaylists, ...response.data.items];
+  const allPlaylists = [...prevPlaylists, ...items];
 
-  if (response.data.next) {
-    return listUserPlaylistsRecursive(
-      accessToken,
-      response.data.next,
-      allPlaylists,
-    );
+  if (next) {
+    return listUserPlaylistsRecursive(accessToken, next, allPlaylists);
   } else {
     return allPlaylists;
   }
@@ -195,10 +155,14 @@ export const getRefreshToken = async (accessToken: string): Promise<string> => {
 
 export const updateAccessToken = async (
   refreshToken: string,
-  accessToken : string,
+  accessToken: string,
 ): Promise<void> => {
   console.log('Updating access token with refresh token');
-  await TokensModel.findOneAndUpdate({ refreshToken }, { accessToken });
+  await TokensModel.findOneAndUpdate(
+    { refreshToken },
+    { accessToken },
+    { useFindAndModify: false },
+  );
 };
 
 export const deleteTokens = async (accessToken: string): Promise<void> => {

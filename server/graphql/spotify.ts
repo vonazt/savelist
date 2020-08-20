@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Resolver, Query, Mutation, Ctx } from 'type-graphql';
+import { Resolver, Query, Mutation, Ctx, Arg } from 'type-graphql';
 import { service } from '../services';
 import { Track, SpotifyPlaylist } from '../models';
 import { AuthenticationError } from 'apollo-server-express';
@@ -7,8 +7,15 @@ import { AuthenticationError } from 'apollo-server-express';
 @Resolver()
 export class SpotifySchema {
   @Mutation(() => String)
-  async saveCollectiblesPlaylist(): Promise<string> {
-    return service.saveCollectiblesPlaylist();
+  async savePlaylist(
+    @Arg(`id`) id: string,
+    @Ctx() ctx: { accessToken: string },
+  ): Promise<string> {
+    if (!ctx.accessToken)
+      throw new AuthenticationError(
+        `Access token and refresh token have expired. Please login to Spotify again`,
+      );
+    return service.savePlaylist(id, ctx.accessToken);
   }
   @Query(() => [Track])
   async listCollectiblesPlaylist(): Promise<Track[]> {

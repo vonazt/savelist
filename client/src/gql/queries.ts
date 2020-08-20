@@ -18,3 +18,9 @@ export const LIST_PLAYLISTS = gql`
     }
   }
 `;
+
+export const SAVE_PLAYLIST = gql`
+  mutation SavePlaylist($id: String!) {
+    savePlaylist(id: $id)
+  }
+`
