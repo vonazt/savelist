@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { LIST_PLAYLISTS, SAVE_PLAYLIST } from "./gql";
 import { LoadingSkeleton } from "./LoadingSkeleton";
 import FileSaver from "file-saver";
+import { Parser } from "json2csv";
 
 type ExternalUrls = {
   spotify: string;
@@ -49,6 +50,13 @@ type SpotifyPlaylistQuery = {
   listPlaylists: SpotifyPlaylist[];
 };
 
+type FormattedPlaylist = {
+  track: string;
+  album: string;
+  artists: string[];
+  spotifyId: string;
+};
+
 export const Home: React.FC<{}> = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const { data, error, loading } = useQuery<SpotifyPlaylistQuery>(
@@ -84,19 +92,22 @@ export const Home: React.FC<{}> = () => {
     }
   }, [data]);
 
-  const [playlistToSave, setPlaylistToSave] = useState<string>(``);
 
   useEffect(() => {
     if (savedPlaylist) {
-      setPlaylistToSave(savedPlaylist.savePlaylist);
-      const blob = new Blob([savedPlaylist.savePlaylist], { type: `json` });
-      FileSaver.saveAs(blob, `playlist.json`)
+      const json2csvParser = new Parser();
+      const playlistCsv = json2csvParser.parse(
+        JSON.parse(savedPlaylist.savePlaylist).map(
+          (playlist: FormattedPlaylist) => ({
+            ...playlist,
+            artists: playlist.artists.join(`, `),
+          })
+        )
+      );
+      const blob = new Blob([playlistCsv], { type: `text/csv;charset=utf-8` });
+      FileSaver.saveAs(blob, `playlist.csv`);
     }
   }, [savedPlaylist]);
-
-  console.log("playlists is", data?.listPlaylists);
-
-  console.log("saved playlist", savedPlaylist);
 
   return (
     <div className="container mx-auto flex flex-col items-center h-full content-center justify-center">
