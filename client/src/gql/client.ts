@@ -13,12 +13,13 @@ const httpLink = createHttpLink({ uri: `http://localhost:4000/graphql` });
 
 const authLink = setContext((_, { headers }) => {
   const accessToken = localStorage.getItem(`accessToken`);
-  return {
-    headers: {
-      ...headers,
-      accessToken
-    },
-  };
+  if (accessToken)
+    return {
+      headers: {
+        ...headers,
+        accessToken,
+      },
+    };
 });
 
 const afterWare = new ApolloLink((operation: Operation, forward: NextLink) => {

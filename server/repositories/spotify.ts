@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import {
   Track,
   ISpotifyTrack,
@@ -11,19 +11,23 @@ import { CollectiblesModel, TokensModel } from './mongoose';
 
 const baseSpotifyApiUrl = `https://api.spotify.com/v1`;
 
+const getSpotifyTokenApiRequestConfig = (data: {
+  [key: string]: string;
+}): AxiosRequestConfig => ({
+  method: `POST`,
+  url: `https://accounts.spotify.com/api/token`,
+  data: qs.stringify(data),
+  headers: {
+    Authorization: `Basic ${process.env.SPOTIFY_AUTH_SECRET}`,
+    'content-type': 'application/x-www-form-urlencoded',
+  },
+});
+
 export const getSpotifyAccessToken = async (): Promise<string> => {
   const data = { grant_type: `client_credentials` };
   const {
     data: { access_token: accessToken },
-  } = await axios({
-    method: `POST`,
-    url: `https://accounts.spotify.com/api/token`,
-    data: qs.stringify(data),
-    headers: {
-      Authorization: `Basic ${process.env.SPOTIFY_AUTH_SECRET}`,
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-  });
+  } = await axios(getSpotifyTokenApiRequestConfig(data));
   return accessToken;
 };
 
@@ -123,6 +127,7 @@ export const listUserPlaylistsRecursive = async (
 };
 
 export const validateToken = async (accessToken: string): Promise<string> => {
+  if (!accessToken) return null;
   try {
     await axios({
       method: `GET`,
@@ -135,12 +140,12 @@ export const validateToken = async (accessToken: string): Promise<string> => {
     return accessToken;
   } catch (err) {
     console.error(`invalid token with status: `, err.response.status);
-    if (err.response.status === 401) {
+    if ([400, 401].includes(err.response.status)) {
       try {
         console.log('attempting to refresh token');
         const refreshToken = await getRefreshToken(accessToken);
         const newAccessToken = await doRefreshToken(refreshToken);
-        await updateAccessToken(refreshToken, accessToken);
+        await updateAccessToken(refreshToken, newAccessToken);
         return newAccessToken;
       } catch (err) {
         console.error(
@@ -162,15 +167,7 @@ const doRefreshToken = async (refresh_token: string): Promise<string> => {
 
   const {
     data: { access_token },
-  } = await axios({
-    method: `POST`,
-    url: `https://accounts.spotify.com/api/token`,
-    data: qs.stringify(data),
-    headers: {
-      Authorization: `Basic ${process.env.SPOTIFY_AUTH_SECRET}`,
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-  });
+  } = await axios(getSpotifyTokenApiRequestConfig(data));
 
   console.log('generated fresh access token', access_token);
 
@@ -183,26 +180,28 @@ export const saveTokens = async (
 ): Promise<void> => {
   console.log('saving tokens');
   const tokensToSave = new TokensModel({ accessToken, refreshToken });
-  tokensToSave.save();
+  await tokensToSave.save();
 };
 
 export const getRefreshToken = async (accessToken: string): Promise<string> => {
-  console.log('getting refresh token');
+  console.log('getting refresh token', accessToken);
   const { refreshToken } = await TokensModel.findOne({ accessToken }, null, {
     lean: true,
   });
+  if (!refreshToken)
+    throw new Error(`Refresh token not found for access token`);
   return refreshToken;
 };
 
 export const updateAccessToken = async (
-  accessToken: string,
   refreshToken: string,
+  accessToken : string,
 ): Promise<void> => {
-  console.log('Updating access token');
-  TokensModel.findOneAndUpdate({ refreshToken }, { accessToken });
+  console.log('Updating access token with refresh token');
+  await TokensModel.findOneAndUpdate({ refreshToken }, { accessToken });
 };
 
 export const deleteTokens = async (accessToken: string): Promise<void> => {
   console.log('deleting tokens');
-  TokensModel.findOneAndDelete({ accessToken });
+  await TokensModel.findOneAndDelete({ accessToken });
 };
