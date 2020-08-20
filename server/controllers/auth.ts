@@ -2,6 +2,7 @@ import querystring from 'querystring';
 import { RequestHandler } from 'express';
 import axios from 'axios';
 import qs from 'qs';
+import { repository } from '../repositories';
 
 export const login: RequestHandler = (req, res): void =>
   res.redirect(
@@ -39,7 +40,9 @@ export const callback: RequestHandler = async (req, res) => {
     },
   });
 
-  const query = querystring.stringify({ access_token, refresh_token });
+  await repository.saveTokens(access_token, refresh_token)
+
+  const query = querystring.stringify({ access_token });
   res.redirect(`${process.env.FRONT_END_URI}?${query}`);
 };
 

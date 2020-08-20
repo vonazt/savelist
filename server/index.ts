@@ -35,7 +35,6 @@ const start = async () => {
     context: async ({ req, res }) => {
       const accessToken = await repository.validateToken(
         req.headers.accesstoken as string,
-        req.headers.refreshtoken as string,
       );
       if (accessToken) {
         res.header({ accessToken });

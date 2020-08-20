@@ -1,7 +1,13 @@
 import axios from 'axios';
-import { Track, ISpotifyTrack, IBulkWrite, ITrackDocument, SpotifyPlaylist } from '../models';
+import {
+  Track,
+  ISpotifyTrack,
+  IBulkWrite,
+  ITrackDocument,
+  SpotifyPlaylist,
+} from '../models';
 import qs from 'qs';
-import { CollectiblesModel } from './mongoose';
+import { CollectiblesModel, TokensModel } from './mongoose';
 
 const baseSpotifyApiUrl = `https://api.spotify.com/v1`;
 
@@ -116,10 +122,7 @@ export const listUserPlaylistsRecursive = async (
   }
 };
 
-export const validateToken = async (
-  accessToken: string,
-  refreshToken: string,
-): Promise<string> => {
+export const validateToken = async (accessToken: string): Promise<string> => {
   try {
     await axios({
       method: `GET`,
@@ -128,20 +131,23 @@ export const validateToken = async (
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log(`access token still valid`)
-    return accessToken
+    console.log(`access token still valid`);
+    return accessToken;
   } catch (err) {
     console.error(`invalid token with status: `, err.response.status);
     if (err.response.status === 401) {
       try {
         console.log('attempting to refresh token');
+        const refreshToken = await getRefreshToken(accessToken);
         const newAccessToken = await doRefreshToken(refreshToken);
+        await updateAccessToken(refreshToken, accessToken);
         return newAccessToken;
       } catch (err) {
         console.error(
           `refresh token invalid with status: `,
           err.response.status,
         );
+        await deleteTokens(accessToken);
         return null;
       }
     }
@@ -169,4 +175,34 @@ const doRefreshToken = async (refresh_token: string): Promise<string> => {
   console.log('generated fresh access token', access_token);
 
   return access_token;
+};
+
+export const saveTokens = async (
+  accessToken: string,
+  refreshToken: string,
+): Promise<void> => {
+  console.log('saving tokens');
+  const tokensToSave = new TokensModel({ accessToken, refreshToken });
+  tokensToSave.save();
+};
+
+export const getRefreshToken = async (accessToken: string): Promise<string> => {
+  console.log('getting refresh token');
+  const { refreshToken } = await TokensModel.findOne({ accessToken }, null, {
+    lean: true,
+  });
+  return refreshToken;
+};
+
+export const updateAccessToken = async (
+  accessToken: string,
+  refreshToken: string,
+): Promise<void> => {
+  console.log('Updating access token');
+  TokensModel.findOneAndUpdate({ refreshToken }, { accessToken });
+};
+
+export const deleteTokens = async (accessToken: string): Promise<void> => {
+  console.log('deleting tokens');
+  TokensModel.findOneAndDelete({ accessToken });
 };
