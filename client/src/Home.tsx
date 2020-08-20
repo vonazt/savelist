@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@apollo/client";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useQuery, useMutation, ApolloError } from "@apollo/client";
 import { LIST_PLAYLISTS, SAVE_PLAYLIST } from "./gql";
 import { LoadingSkeleton } from "./LoadingSkeleton";
+import { LoadingSpinner } from "./LoadingSpinner";
 import FileSaver from "file-saver";
 import { Parser } from "json2csv";
 
@@ -57,24 +58,40 @@ type FormattedPlaylist = {
   spotifyId: string;
 };
 
+type CurrentlySaving = {
+  [key: string]: boolean;
+};
+
+type SavedPlaylist = {
+  savePlaylist: string;
+};
+
+const handleGraphQLError = (
+  error: ApolloError,
+  setIsLoggedIn: Dispatch<SetStateAction<boolean>>
+) => {
+  if (
+    error?.graphQLErrors.some(({ message }) =>
+      message.startsWith(`Access token and refresh token have expired`)
+    )
+  ) {
+    localStorage.removeItem(`accessToken`);
+    setIsLoggedIn(false);
+  }
+};
+
 export const Home: React.FC<{}> = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const { data, error, loading } = useQuery<SpotifyPlaylistQuery>(
-    LIST_PLAYLISTS,
-    {
-      onError: () => {
-        if (
-          error?.graphQLErrors.some(({ message }) =>
-            message.startsWith(`Access token and refresh token have expired`)
-          )
-        ) {
-          localStorage.removeItem(`accessToken`);
-          setIsLoggedIn(false);
-        }
-      },
-    }
-  );
-  const [savePlaylist, { data: savedPlaylist }] = useMutation(SAVE_PLAYLIST);
+  //HAVE TO MOVE TO USEAPISERVICE FOR MULTIPLE DOWNLOADS
+  const { data, loading } = useQuery<SpotifyPlaylistQuery>(LIST_PLAYLISTS, {
+    onError: (error) => handleGraphQLError(error, setIsLoggedIn),
+  });
+  const [
+    savePlaylist,
+    { data: savedPlaylist, loading: savingPlaylist },
+  ] = useMutation<SavedPlaylist>(SAVE_PLAYLIST, {
+    onError: (error) => handleGraphQLError(error, setIsLoggedIn),
+  });
 
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
 
@@ -92,9 +109,9 @@ export const Home: React.FC<{}> = () => {
     }
   }, [data]);
 
-
   useEffect(() => {
     if (savedPlaylist) {
+      //to save multiple files https://stackoverflow.com/questions/58904569/managing-multiple-calls-to-the-same-apollo-mutation
       const json2csvParser = new Parser();
       const playlistCsv = json2csvParser.parse(
         JSON.parse(savedPlaylist.savePlaylist).map(
@@ -108,6 +125,15 @@ export const Home: React.FC<{}> = () => {
       FileSaver.saveAs(blob, `playlist.csv`);
     }
   }, [savedPlaylist]);
+
+  console.log('saved playlist', savedPlaylist)
+
+  const [currentlySaving, setCurrentlySaving] = useState<CurrentlySaving>({});
+
+  const handleSavePlaylist = (id: string) => {
+    setCurrentlySaving({ ...currentlySaving, [id]: true });
+    savePlaylist({ variables: { id } });
+  };
 
   return (
     <div className="container mx-auto flex flex-col items-center h-full content-center justify-center">
@@ -129,12 +155,13 @@ export const Home: React.FC<{}> = () => {
             {playlists?.map(({ id, name }: SpotifyPlaylist) => (
               <tr key={id} className="border-4 border-spotifyGreen">
                 <td className="p-4">{name}</td>
-                <td
-                  className="p-4"
-                  onClick={() => savePlaylist({ variables: { id } })}
-                >
-                  Save
-                </td>
+                {savingPlaylist && currentlySaving[id] ? (
+                  <LoadingSpinner />
+                ) : (
+                  <td className="p-4" onClick={() => handleSavePlaylist(id)}>
+                    Save
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
