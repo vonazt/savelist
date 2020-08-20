@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import { ApolloServer, AuthenticationError } from 'apollo-server-express';
+import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { SpotifySchema } from './graphql';
 import authRoutes from './routes/auth';
@@ -37,12 +37,10 @@ const start = async () => {
         req.headers.accesstoken as string,
         req.headers.refreshtoken as string,
       );
-      if (!accessToken)
-        throw new AuthenticationError(
-          `Access token and refresh token have expired. Please login to Spotify again`,
-        );
-      res.header({ accessToken });
-      return { accessToken };
+      if (accessToken) {
+        res.header({ accessToken });
+        return { accessToken };
+      }
     },
   });
 

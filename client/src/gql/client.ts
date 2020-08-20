@@ -25,7 +25,10 @@ const authLink = setContext((_, { headers }) => {
 
 const afterWare = new ApolloLink((operation: Operation, forward: NextLink) => {
   return forward(operation).map((result) => {
-    console.info(operation.getContext().response);
+    const accessToken = operation
+      .getContext()
+      .response.headers.get(`accessToken`);
+    if (accessToken) localStorage.setItem(`accessToken`, accessToken);
     return result;
   });
 });
