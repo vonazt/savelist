@@ -46,12 +46,12 @@ export const Playlist: React.FC<PlaylistProps> = ({
   };
 
   return (
-    <tr key={id} className="border-4 border-spotifyGreen">
+    <tr className="border-4 border-spotifyGreen">
       <td className="p-4">{name}</td>
       {savingPlaylist ? (
         <LoadingSpinner />
       ) : (
-        <td className="p-4" onClick={() => handleSavePlaylist(id)}>
+        <td className="p-4 cursor-pointer" onClick={() => handleSavePlaylist(id)}>
           Save
         </td>
       )}

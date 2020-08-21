@@ -46,7 +46,7 @@ export const Home: React.FC<{}> = () => {
         <table className="table-auto">
           <tbody>
             {playlists?.map(({ id, name }: SpotifyPlaylist) => (
-              <Playlist id={id} name={name} setIsLoggedIn={setIsLoggedIn} />
+              <Playlist key={id} id={id} name={name} setIsLoggedIn={setIsLoggedIn} />
             ))}
           </tbody>
         </table>
