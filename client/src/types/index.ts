@@ -2,7 +2,7 @@ export type ExternalUrls = {
   spotify: string;
 };
 
-export type SpotiftyImage = {
+export type SpotifyImage = {
   height: number;
   url: string;
   width: number;
@@ -28,7 +28,7 @@ export type SpotifyPlaylist = {
   external_urls: ExternalUrls;
   href: string;
   id: string;
-  images: SpotiftyImage[];
+  images: SpotifyImage[];
   name: string;
   owner: SpotifyOwner;
   primary_color: string;

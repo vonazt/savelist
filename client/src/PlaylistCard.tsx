@@ -1,22 +1,21 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, Fragment } from "react";
 import { useMutation } from "@apollo/client";
 import { SAVE_PLAYLIST } from "./gql";
 import { LoadingSpinner } from "./LoadingSpinner";
 import FileSaver from "file-saver";
 import { Parser } from "json2csv";
-import { SavedPlaylist, FormattedPlaylist } from "./types";
+import { SavedPlaylist, FormattedPlaylist, SpotifyPlaylist } from "./types";
 import { handleGraphQLError } from "./utils";
 import { LoggedInContext, LoggedInContextProps } from "./LoggedInContext";
+import { PlaylistImage } from "./PlaylistImage";
 
-type PlaylistProps = {
-  id: string;
-  name: string;
+type PlaylistCardProps = {
+  playlist: SpotifyPlaylist;
 };
 
-export const Playlist: React.FC<PlaylistProps> = ({
-  id,
-  name,
-}: PlaylistProps) => {
+export const PlaylistCard: React.FC<PlaylistCardProps> = ({
+  playlist,
+}: PlaylistCardProps) => {
   const { setIsLoggedIn } = useContext<LoggedInContextProps>(LoggedInContext);
   const [
     savePlaylist,
@@ -37,27 +36,34 @@ export const Playlist: React.FC<PlaylistProps> = ({
         )
       );
       const blob = new Blob([playlistCsv], { type: `text/csv;charset=utf-8` });
-      FileSaver.saveAs(blob, `${name}.csv`);
+      FileSaver.saveAs(blob, `${playlist.name}.csv`);
     }
-  }, [savedPlaylist, name]);
+  }, [savedPlaylist, playlist.name]);
 
   const handleSavePlaylist = (id: string) => {
     savePlaylist({ variables: { id } });
   };
 
+  console.log("playlist", playlist);
+
   return (
-    <tr className="border-4 border-spotifyGreen">
-      <td className="p-4">{name}</td>
-      {savingPlaylist ? (
-        <LoadingSpinner />
-      ) : (
-        <td
-          className="p-4 cursor-pointer"
-          onClick={() => handleSavePlaylist(id)}
-        >
-          Save
-        </td>
-      )}
-    </tr>
+    <Fragment>
+      <div className="border-2 w-1/4 m-4">
+        <PlaylistImage images={playlist.images} />
+
+        <div className="relative">
+          <h2 className="mx-4 mt-2 italic text-xl font-bold w-8/12">
+            {playlist.name}
+          </h2>
+          <button
+            className="font-bold bg-spotifyGreen absolute top-0 right-0 mr-4 p-1 rounded clear-left"
+            onClick={() => handleSavePlaylist(playlist.id)}
+            disabled={savingPlaylist}
+          >
+            {savingPlaylist ? <LoadingSpinner /> : `save`}
+          </button>
+        </div>
+      </div>
+    </Fragment>
   );
 };

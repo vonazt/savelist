@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import { LIST_PLAYLISTS } from "./gql";
 import { handleGraphQLError } from "./utils";
 import { LoadingSkeleton } from "./LoadingSkeleton";
-import { Playlist } from "./Playlist";
+import { PlaylistCard } from "./PlaylistCard";
 import { LoggedInContext, LoggedInContextProps } from "./LoggedInContext";
 import { SpotifyPlaylistQuery, SpotifyPlaylist } from "./types";
 
@@ -31,7 +31,7 @@ export const Home: React.FC<{}> = () => {
   }, [data, setIsLoggingIn]);
 
   return (
-    <div className="container mx-auto flex flex-col items-center h-full content-center justify-center">
+    <div className="container mx-auto">
       <h1 className="text-3xl text-center m-5 font-extrabold">Backupify</h1>
       {!isLoggedIn && !isLoggingIn && (
         <a
@@ -45,17 +45,11 @@ export const Home: React.FC<{}> = () => {
       {isLoggingIn || (isLoggedIn && loading) ? (
         <LoadingSkeleton />
       ) : (
-        <table className="table-auto">
-          <tbody>
-            {playlists?.map(({ id, name }: SpotifyPlaylist) => (
-              <Playlist
-                key={id}
-                id={id}
-                name={name}
-              />
-            ))}
-          </tbody>
-        </table>
+        <div className="flex flex-wrap items-center h-full content-center justify-center">
+          {playlists?.map((playlist: SpotifyPlaylist) => (
+            <PlaylistCard key={playlist.id} playlist={playlist} />
+          ))}
+        </div>
       )}
     </div>
   );
