@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useQuery } from "@apollo/client";
 import { LIST_PLAYLISTS } from "./gql";
 import { handleGraphQLError } from "./utils";
 import { LoadingSkeleton } from "./LoadingSkeleton";
 import { Playlist } from "./Playlist";
+import { LoggedInContext, LoggedInContextProps } from "./LoggedInContext";
 import { SpotifyPlaylistQuery, SpotifyPlaylist } from "./types";
 
 export const Home: React.FC<{}> = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { isLoggedIn, setIsLoggedIn, isLoggingIn, setIsLoggingIn } = useContext<
+    LoggedInContextProps
+  >(LoggedInContext);
+
   const { data, loading } = useQuery<SpotifyPlaylistQuery>(LIST_PLAYLISTS, {
     onError: (error) => handleGraphQLError(error, setIsLoggedIn),
   });
@@ -17,16 +21,14 @@ export const Home: React.FC<{}> = () => {
   useEffect(() => {
     const accessToken = localStorage.getItem(`accessToken`);
     setIsLoggedIn(accessToken ? true : false);
-  }, []);
-
-  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  }, [setIsLoggedIn]);
 
   useEffect(() => {
     if (data) {
       setIsLoggingIn(false);
       setPlaylists(data?.listPlaylists);
     }
-  }, [data]);
+  }, [data, setIsLoggingIn]);
 
   return (
     <div className="container mx-auto flex flex-col items-center h-full content-center justify-center">
@@ -46,7 +48,11 @@ export const Home: React.FC<{}> = () => {
         <table className="table-auto">
           <tbody>
             {playlists?.map(({ id, name }: SpotifyPlaylist) => (
-              <Playlist key={id} id={id} name={name} setIsLoggedIn={setIsLoggedIn} />
+              <Playlist
+                key={id}
+                id={id}
+                name={name}
+              />
             ))}
           </tbody>
         </table>

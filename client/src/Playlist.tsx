@@ -1,4 +1,4 @@
-import React, { useEffect, Dispatch, SetStateAction } from "react";
+import React, { useEffect, useContext } from "react";
 import { useMutation } from "@apollo/client";
 import { SAVE_PLAYLIST } from "./gql";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -6,18 +6,18 @@ import FileSaver from "file-saver";
 import { Parser } from "json2csv";
 import { SavedPlaylist, FormattedPlaylist } from "./types";
 import { handleGraphQLError } from "./utils";
+import { LoggedInContext, LoggedInContextProps } from "./LoggedInContext";
 
 type PlaylistProps = {
   id: string;
   name: string;
-  setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
 };
 
 export const Playlist: React.FC<PlaylistProps> = ({
   id,
   name,
-  setIsLoggedIn,
 }: PlaylistProps) => {
+  const { setIsLoggedIn } = useContext<LoggedInContextProps>(LoggedInContext);
   const [
     savePlaylist,
     { data: savedPlaylist, loading: savingPlaylist },
@@ -39,7 +39,7 @@ export const Playlist: React.FC<PlaylistProps> = ({
       const blob = new Blob([playlistCsv], { type: `text/csv;charset=utf-8` });
       FileSaver.saveAs(blob, `${name}.csv`);
     }
-  }, [savedPlaylist]);
+  }, [savedPlaylist, name]);
 
   const handleSavePlaylist = (id: string) => {
     savePlaylist({ variables: { id } });
@@ -51,7 +51,10 @@ export const Playlist: React.FC<PlaylistProps> = ({
       {savingPlaylist ? (
         <LoadingSpinner />
       ) : (
-        <td className="p-4 cursor-pointer" onClick={() => handleSavePlaylist(id)}>
+        <td
+          className="p-4 cursor-pointer"
+          onClick={() => handleSavePlaylist(id)}
+        >
           Save
         </td>
       )}
