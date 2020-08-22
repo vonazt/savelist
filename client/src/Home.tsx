@@ -43,9 +43,11 @@ export const Home: React.FC<{}> = () => {
         </a>
       )}
       {isLoggingIn || (isLoggedIn && loading) ? (
-        <LoadingSkeleton />
+        <div className="grid gap-4 grid-cols-3 grid-rows-3">
+          {new Array(6).fill(<LoadingSkeleton />).map((skeleton) => skeleton)}
+        </div>
       ) : (
-        <div className="grid gap-4 grid-cols-3 ">
+        <div className="grid gap-4 grid-cols-3 grid-rows-6">
           {playlists?.map((playlist: SpotifyPlaylist) => (
             <PlaylistCard key={playlist.id} playlist={playlist} />
           ))}

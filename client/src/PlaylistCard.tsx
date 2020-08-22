@@ -62,7 +62,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
 
   return (
     <Fragment>
-      <div className="border-2 border-spotifyGreen m-4">
+      <div className="border-2 border-spotifyGreen m-4 pb-4">
         <PlaylistImage images={playlist.images} />
 
         <div className="divide-y divide-gray-400 mx-4">
@@ -78,9 +78,10 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
               {savingPlaylist ? <LoadingSpinner /> : `save`}
             </button>
           </div>
-          <h3 className="mx-4 pt-2">
+          <h3 className="mx-4 py-2">
             Tracks: {formatTracksTotal(playlist.tracks.total)}
           </h3>
+          <p className="italic mx-4 pt-2" dangerouslySetInnerHTML={{__html: playlist.description}}>{}</p>
         </div>
       </div>
     </Fragment>
