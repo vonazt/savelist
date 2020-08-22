@@ -9,6 +9,7 @@ import {
   LoggedInContextProps,
   PlaylistCard,
   Search,
+  PlaylistNavigation,
 } from "./";
 import { SpotifyPlaylistQuery, SpotifyPlaylist, Playlists } from "../types";
 
@@ -24,6 +25,7 @@ export const Home: React.FC<{}> = () => {
   const [playlists, setPlaylists] = useState<Playlists>({
     allPlaylists: [],
     filteredPlaylists: [],
+    offsetPlaylists: [],
   });
 
   useEffect(() => {
@@ -31,15 +33,28 @@ export const Home: React.FC<{}> = () => {
     setIsLoggedIn(accessToken ? true : false);
   }, [setIsLoggedIn]);
 
+  const [offset, setOffset] = useState<number>(0);
+
   useEffect(() => {
     if (data) {
       setIsLoggingIn(false);
       setPlaylists({
         allPlaylists: data?.listPlaylists,
         filteredPlaylists: data?.listPlaylists,
+        offsetPlaylists: [...data?.listPlaylists].slice(0, 12),
       });
     }
   }, [data, setIsLoggingIn]);
+
+  useEffect(() => {
+    setPlaylists((playlists) => ({
+      ...playlists,
+      offsetPlaylists: [...playlists.filteredPlaylists].slice(
+        offset,
+        offset + 12
+      ),
+    }));
+  }, [offset, playlists.filteredPlaylists]);
 
   return (
     <div className="container mx-auto">
@@ -52,14 +67,29 @@ export const Home: React.FC<{}> = () => {
           ))}
         </div>
       ) : (
-        isLoggedIn && <Fragment>
-          <Search playlists={playlists} setPlaylists={setPlaylists} />
-          <div className="grid gap-4 grid-cols-3 grid-rows-6">
-            {playlists?.filteredPlaylists.map((playlist: SpotifyPlaylist) => (
-              <PlaylistCard key={playlist.id} playlist={playlist} />
-            ))}
-          </div>
-        </Fragment>
+        isLoggedIn && (
+          <Fragment>
+            <Search
+              playlists={playlists}
+              setPlaylists={setPlaylists}
+              setOffset={setOffset}
+            />
+            <div
+              className={`grid gap-4 grid-cols-3 grid-rows-${Math.ceil(
+                playlists.offsetPlaylists.length / 3
+              )}`}
+            >
+              {playlists?.offsetPlaylists.map((playlist: SpotifyPlaylist) => (
+                <PlaylistCard key={playlist.id} playlist={playlist} />
+              ))}
+            </div>
+            <PlaylistNavigation
+              offset={offset}
+              setOffset={setOffset}
+              playlists={playlists}
+            />
+          </Fragment>
+        )
       )}
     </div>
   );

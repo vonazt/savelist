@@ -1,6 +1,7 @@
 export type Playlists = {
   allPlaylists: SpotifyPlaylist[];
   filteredPlaylists: SpotifyPlaylist[];
+  offsetPlaylists: SpotifyPlaylist[]
 };
 
 export type ExternalUrls = {

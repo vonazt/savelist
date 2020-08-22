@@ -6,11 +6,13 @@ import { Playlists } from "../../types";
 type SearchProps = {
   playlists: Playlists;
   setPlaylists: Dispatch<SetStateAction<Playlists>>;
+  setOffset: Dispatch<SetStateAction<number>>
 };
 
 export const Search: React.FC<SearchProps> = ({
   playlists,
   setPlaylists,
+  setOffset
 }: SearchProps) => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const {
@@ -19,6 +21,7 @@ export const Search: React.FC<SearchProps> = ({
     const filteredPlaylists = playlists.allPlaylists.filter(({ name }) =>
       name.toLocaleLowerCase().includes(value.toLocaleLowerCase())
     );
+    setOffset(0)
     setPlaylists({ ...playlists, filteredPlaylists });
   };
 
