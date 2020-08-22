@@ -1,3 +1,8 @@
+export type Playlists = {
+  allPlaylists: SpotifyPlaylist[];
+  filteredPlaylists: SpotifyPlaylist[];
+};
+
 export type ExternalUrls = {
   spotify: string;
 };
