@@ -1,7 +1,7 @@
 import React from "react";
 
 export const LoadingSkeleton: React.FC<{}> = () => (
-  <div className="border border-spotifyGreen shadow rounded-md p-4 max-w-1/2 w-3/4 mx-auto">
+  <div className="border-4 border-spotifyGreen shadow rounded-md p-4 max-w-1/2 w-3/4 my-4 mx-auto">
     <div className="animate-pulse flex justify-content space-x-4">
       <div className="flex-1 space-y-4 py-1">
         <div className="flex content-center justify-center">

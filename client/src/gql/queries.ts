@@ -14,7 +14,15 @@ export const LIST_PLAYLISTS = gql`
       tracks {
         total
       }
-      public
+      owner {
+        display_name
+        external_urls {
+          spotify
+        }
+      }
+      external_urls {
+        spotify
+      }
     }
   }
 `;

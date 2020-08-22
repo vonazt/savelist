@@ -44,7 +44,9 @@ export const Home: React.FC<{}> = () => {
       )}
       {isLoggingIn || (isLoggedIn && loading) ? (
         <div className="grid gap-4 grid-cols-3 grid-rows-3">
-          {new Array(6).fill(<LoadingSkeleton />).map((skeleton) => skeleton)}
+          {Array.from(Array(6), (_, i) => (
+            <LoadingSkeleton key={i} />
+          ))}
         </div>
       ) : (
         <div className="grid gap-4 grid-cols-3 grid-rows-6">

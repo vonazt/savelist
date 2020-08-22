@@ -62,14 +62,21 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
 
   return (
     <Fragment>
-      <div className="border-2 border-spotifyGreen m-4 pb-4">
+      <div className="border-4 border-spotifyGreen rounded m-4 pb-4">
         <PlaylistImage images={playlist.images} />
 
         <div className="divide-y divide-gray-400 mx-4">
           <div className="relative">
-            <h2 className="mx-4 mt-2 mb-4 italic text-xl font-bold w-8/12 leading-tight">
+            <h2 className="mx-4 mt-2 italic text-xl font-bold w-8/12 leading-tight">
               {playlist.name}
             </h2>
+            <h4 className="text-sm italic mx-4 mb-4 text-gray-400">
+              by{" "}
+              <a href={playlist.owner.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                {" "}
+                {playlist.owner.display_name}
+              </a>
+            </h4>
             <button
               className="font-bold bg-spotifyGreen absolute top-0 right-0 mr-4 p-1 rounded clear-left"
               onClick={() => handleSavePlaylist(playlist.id)}
@@ -81,7 +88,10 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
           <h3 className="mx-4 py-2">
             Tracks: {formatTracksTotal(playlist.tracks.total)}
           </h3>
-          <p className="italic mx-4 pt-2" dangerouslySetInnerHTML={{__html: playlist.description}}>{}</p>
+          <p
+            className="italic mx-4 py-2"
+            dangerouslySetInnerHTML={{ __html: playlist.description }}
+          />
         </div>
       </div>
     </Fragment>
