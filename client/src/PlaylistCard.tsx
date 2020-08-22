@@ -46,9 +46,23 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
 
   console.log("playlist", playlist);
 
+  const formatTracksTotal = (total: number): string =>
+    total
+      .toString()
+      .split(``)
+      .reverse()
+      .reduceRight(
+        (acc: string[], currChar: string, currIndex: number) =>
+          currIndex > 0 && currIndex % 3 === 0
+            ? [...acc, `${currChar},`]
+            : [...acc, currChar],
+        []
+      )
+      .join(``);
+
   return (
     <Fragment>
-      <div className="border-2 border-spotifyGreen w-1/3 m-4">
+      <div className="border-2 border-spotifyGreen m-4">
         <PlaylistImage images={playlist.images} />
 
         <div className="divide-y divide-gray-400 mx-4">
@@ -64,7 +78,9 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
               {savingPlaylist ? <LoadingSpinner /> : `save`}
             </button>
           </div>
-          <h3 className="mx-4 pt-2">Tracks: {playlist.tracks.total}</h3>
+          <h3 className="mx-4 pt-2">
+            Tracks: {formatTracksTotal(playlist.tracks.total)}
+          </h3>
         </div>
       </div>
     </Fragment>

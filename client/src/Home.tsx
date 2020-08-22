@@ -45,7 +45,7 @@ export const Home: React.FC<{}> = () => {
       {isLoggingIn || (isLoggedIn && loading) ? (
         <LoadingSkeleton />
       ) : (
-        <div className="flex flex-wrap items-center h-full content-center justify-center">
+        <div className="grid gap-4 grid-cols-3 ">
           {playlists?.map((playlist: SpotifyPlaylist) => (
             <PlaylistCard key={playlist.id} playlist={playlist} />
           ))}
