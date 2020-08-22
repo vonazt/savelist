@@ -34,7 +34,8 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
   }, [offset]);
 
   useEffect(() => {
-    setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
+    // setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
+    setNumberOfPages(20)
   }, [playlists.filteredPlaylists.length]);
 
   const handleSelectPage = (pageNumber: number): void => {
@@ -73,6 +74,18 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
     return PageNumberButton(pageNumber);
   };
 
+  const isDisplayEllipsisByPageOne =
+    (window.innerWidth <= 640 && numberOfPages > 6 && currentPage > 3) ||
+    (window.innerWidth > 640 && numberOfPages > 10 && currentPage > 5);
+
+  const isDisplayEllipsisByFinalPage =
+    (window.innerWidth <= 640 &&
+      numberOfPages > 6 &&
+      currentPage < numberOfPages - 2) ||
+    (window.innerWidth > 640 &&
+      numberOfPages > 10 &&
+      currentPage < numberOfPages - 4);
+
   return (
     <div className={`mx-4 flex`}>
       <div className="flex justify-start w-1/3">
@@ -91,19 +104,13 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
       </div>
       <div className="flex justify-center w-1/3 space-x-4">
         {PageNumberButton(1)}
-        {((window.innerWidth <= 640 && numberOfPages > 6 && currentPage > 2) ||
-          (window.innerWidth > 640 &&
-            numberOfPages > 10 &&
-            currentPage > 5)) && <span className="lg:px-1 pt-2">...</span>}
+        {isDisplayEllipsisByPageOne && (
+          <span className="lg:px-1 pt-2">...</span>
+        )}
         {Object.keys(Array.apply(0, Array(numberOfPages))).map((_, index) =>
           generatePageNumberButtons(index)
         )}
-        {((window.innerWidth <= 640 &&
-          numberOfPages > 6 &&
-          currentPage < numberOfPages - 2) ||
-          (window.innerWidth > 640 &&
-            numberOfPages > 10 &&
-            currentPage < numberOfPages - 4)) && (
+        {isDisplayEllipsisByFinalPage && (
           <span className="lg:px-1 pt-2">...</span>
         )}
         {PageNumberButton(numberOfPages)}
