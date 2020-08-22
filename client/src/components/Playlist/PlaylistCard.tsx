@@ -1,13 +1,12 @@
 import React, { useEffect, useContext, Fragment } from "react";
 import { useMutation } from "@apollo/client";
-import { SAVE_PLAYLIST } from "./gql";
-import { LoadingSpinner } from "./LoadingSpinner";
 import FileSaver from "file-saver";
 import { Parser } from "json2csv";
-import { SavedPlaylist, FormattedPlaylist, SpotifyPlaylist } from "./types";
-import { handleGraphQLError } from "./utils";
-import { LoggedInContext, LoggedInContextProps } from "./LoggedInContext";
-import { PlaylistImage } from "./PlaylistImage";
+import { SAVE_PLAYLIST } from "../../gql";
+import { SavedPlaylist, FormattedPlaylist, SpotifyPlaylist } from "../../types";
+import { handleGraphQLError } from "../../utils";
+import { LoadingSpinner, LoggedInContext, LoggedInContextProps } from "../";
+import { PlaylistImage } from "./";
 
 type PlaylistCardProps = {
   playlist: SpotifyPlaylist;
@@ -44,27 +43,16 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
     savePlaylist({ variables: { id } });
   };
 
-  console.log("playlist", playlist);
-
   const formatTracksTotal = (total: number): string =>
-    total
-      .toString()
-      .split(``)
-      .reverse()
-      .reduceRight(
-        (acc: string[], currChar: string, currIndex: number) =>
-          currIndex > 0 && currIndex % 3 === 0
-            ? [...acc, `${currChar},`]
-            : [...acc, currChar],
-        []
-      )
-      .join(``);
+    total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
     <Fragment>
       <div className="border-4 border-spotifyGreen rounded m-4 pb-4">
-        <PlaylistImage images={playlist.images} openSpotifyUrl={playlist.external_urls.spotify} />
-
+        <PlaylistImage
+          images={playlist.images}
+          openSpotifyUrl={playlist.external_urls.spotify}
+        />
         <div className="divide-y divide-gray-400 mx-4">
           <div className="relative">
             <h2 className="mx-4 mt-2 italic text-xl font-bold w-8/12 leading-tight">
@@ -72,7 +60,11 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
             </h2>
             <h4 className="text-sm italic mx-4 mb-4 text-gray-400">
               by{" "}
-              <a href={playlist.owner.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+              <a
+                href={playlist.owner.external_urls.spotify}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {" "}
                 {playlist.owner.display_name}
               </a>

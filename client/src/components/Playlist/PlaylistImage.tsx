@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SpotifyImage } from "./types";
+import { SpotifyImage } from "../../types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 
@@ -41,7 +41,7 @@ export const PlaylistImage: React.FC<PlaylistImagesProps> = ({
         }}
         onMouseEnter={() => setIsShowPlayIcon(true)}
         onMouseLeave={() => setIsShowPlayIcon(false)}
-      ></a>
+      />
     </div>
   );
 };
