@@ -15,6 +15,7 @@ export const login: RequestHandler = (req, res): void =>
            playlist-modify-public 
            playlist-modify-private 
            playlist-read-private
+           playlist-read-collaborative
           `,
       redirect_uri: process.env.REDIRECT_URI,
     })}`,

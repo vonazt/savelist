@@ -52,7 +52,7 @@ export const Home: React.FC<{}> = () => {
           ))}
         </div>
       ) : (
-        <Fragment>
+        isLoggedIn && <Fragment>
           <Search playlists={playlists} setPlaylists={setPlaylists} />
           <div className="grid gap-4 grid-cols-3 grid-rows-6">
             {playlists?.filteredPlaylists.map((playlist: SpotifyPlaylist) => (

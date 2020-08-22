@@ -29,7 +29,7 @@ export const PlaylistImage: React.FC<PlaylistImagesProps> = ({
         href={openSpotifyUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={`text-transparent bg-no-repeat bg-center hover:opacity-50 ${
+        className={`text-transparent rounded bg-no-repeat bg-center hover:opacity-50 ${
           isShowPlayIcon ? `opacity-50` : ``
         } bg-cover w-48 h-48 my-2`}
         style={{
