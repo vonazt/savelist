@@ -18,8 +18,10 @@ export const Search: React.FC<SearchProps> = ({
     const {
       target: { value },
     } = e;
-    const filteredPlaylists = playlists.allPlaylists.filter(({ name }) =>
-      name.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+    const filteredPlaylists = playlists.allPlaylists.filter(
+      ({ name, owner: { display_name } }) =>
+        name.toLocaleLowerCase().includes(value.toLocaleLowerCase()) ||
+        display_name.toLocaleLowerCase().includes(value.toLocaleLowerCase())
     );
     setOffset(0);
     setPlaylists({ ...playlists, filteredPlaylists });
