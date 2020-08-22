@@ -63,8 +63,14 @@ export const Home: React.FC<{}> = () => {
       </h1>
       {!isLoggedIn && !isLoggingIn && <LoginLink />}
       {isLoggingIn || (isLoggedIn && loading) ? (
-        window.innerWidth < 768 ? (
+        window.innerWidth <= 640 ? (
           <LoadingSkeleton />
+        ) : window.innerWidth <= 768 ? (
+          <div className="grid gap-4 grid-cols-2 grid-rows-2">
+            {Array.from(Array(4), (_, i) => (
+              <LoadingSkeleton key={i} />
+            ))}
+          </div>
         ) : (
           <div className="grid gap-4 grid-cols-3 grid-rows-3">
             {Array.from(Array(6), (_, i) => (
@@ -81,7 +87,9 @@ export const Home: React.FC<{}> = () => {
               setOffset={setOffset}
             />
             <div
-              className={`grid gap-4 grid-cols-1 lg:grid-cols-3 lg:grid-rows-${Math.ceil(
+              className={`grid gap-4 grid-cols-1 md:grid-cols-2 md:grid-rows-${Math.ceil(
+                playlists.offsetPlaylists.length / 2
+              )} lg:grid-cols-3 lg:grid-rows-${Math.ceil(
                 playlists.offsetPlaylists.length / 3
               )}`}
             >

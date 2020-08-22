@@ -15,16 +15,21 @@ export const PlaylistImage: React.FC<PlaylistImagesProps> = ({
   const [isShowPlayIcon, setIsShowPlayIcon] = useState<boolean>(false);
   return (
     <div className="flex content-center justify-center relative">
-      {(isShowPlayIcon || window.innerWidth <= 640) && (
+      {(isShowPlayIcon || window.innerWidth <= 1024) && (
         <a
           href={openSpotifyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute self-center z-10 border-2 p-8 rounded-full bg-black bg-opacity-50"
+          className={`absolute self-center z-10 border-2 ${
+            window.innerWidth <= 1024 ? `p-6` : `p-8`
+          } rounded-full bg-black bg-opacity-50`}
           onMouseEnter={() => setIsShowPlayIcon(true)}
           onMouseLeave={() => setIsShowPlayIcon(false)}
         >
-          <FontAwesomeIcon icon={faPlay} size={`3x`} />
+          <FontAwesomeIcon
+            icon={faPlay}
+            size={window.innerWidth <= 1024 ? `2x` : `3x`}
+          />
         </a>
       )}
       <a

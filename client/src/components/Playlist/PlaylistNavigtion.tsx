@@ -34,8 +34,7 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
   }, [offset]);
 
   useEffect(() => {
-    // setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
-    setNumberOfPages(20);
+    setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
   }, [playlists.filteredPlaylists.length]);
 
   const handleSelectPage = (pageNumber: number): void => {
