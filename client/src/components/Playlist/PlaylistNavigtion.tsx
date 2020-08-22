@@ -38,8 +38,34 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
   }, [playlists.filteredPlaylists.length]);
 
   const handleSelectPage = (pageNumber: number): void => {
-    window.scrollTo(0, 0)
-    setOffset(pageNumber * 12);
+    window.scrollTo(0, 0);
+    setOffset((pageNumber - 1) * 12);
+  };
+
+  const PageNumberButton = (pageNumber: number): JSX.Element => (
+    <button
+      className={`text-xl italic ${
+        currentPage === pageNumber
+          ? `text-gray-600 cursor-default`
+          : `underline`
+      }`}
+      onClick={() => handleSelectPage(pageNumber)}
+      key={pageNumber}
+      disabled={currentPage === pageNumber}
+    >
+      {pageNumber}
+    </button>
+  );
+
+  const generatePageNumberButtons = (index: number): JSX.Element | null => {
+    const pageNumber = index + 2;
+    if (pageNumber >= numberOfPages) return null;
+    if (numberOfPages > 10) {
+      if (pageNumber >= currentPage - 3 && pageNumber <= currentPage + 3) {
+        return PageNumberButton(pageNumber);
+      } else return null;
+    }
+    return PageNumberButton(pageNumber);
   };
 
   return (
@@ -49,6 +75,7 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
           <button
             onClick={() => moveOnePage(`previous`)}
             disabled={offset === 0}
+            className="hover:underline"
           >
             <span className="text-spotifyGreen text-xl">{`<<< `}</span>
             <span className="text-xl italic">Previous</span>
@@ -56,24 +83,25 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
         )}
       </div>
       <div className="flex justify-center w-1/3 space-x-4">
-        {Object.keys(Array.apply(0, Array(numberOfPages))).map((_, index) => (
-          <button
-            className={`text-xl italic ${
-              currentPage === index + 1
-                ? `text-gray-600 cursor-default`
-                : `underline`
-            }`}
-            onClick={() => handleSelectPage(index)}
-            key={index}
-            disabled={currentPage === index + 1}
-          >
-            {index + 1}
-          </button>
-        ))}
+        {PageNumberButton(1)}
+        {numberOfPages > 10 && currentPage > 5 && (
+          <span className="px-1 pt-2">...</span>
+        )}
+        {Object.keys(Array.apply(0, Array(numberOfPages))).map((_, index) =>
+          generatePageNumberButtons(index)
+        )}
+        {numberOfPages > 10 && currentPage < numberOfPages - 4 && (
+          <span className="px-1 pt-2">...</span>
+        )}
+        {PageNumberButton(numberOfPages)}
       </div>
+
       <div className="flex justify-end w-1/3">
         {playlists.filteredPlaylists.length - offset >= 12 && (
-          <button onClick={() => moveOnePage(`next`)}>
+          <button
+            className="hover:underline"
+            onClick={() => moveOnePage(`next`)}
+          >
             <span className="text-xl italic">Next</span>
             <span className="text-spotifyGreen text-xl">{` >>>`}</span>
           </button>

@@ -57,8 +57,8 @@ export const Home: React.FC<{}> = () => {
   }, [offset, playlists.filteredPlaylists]);
 
   return (
-    <div className="container mx-auto">
-      <h1 className="text-3xl text-center m-5 font-extrabold">Backupify</h1>
+    <div className="container mx-auto mb-8">
+      <h1 className="text-4xl italic text-center m-5 font-extrabold">Backupify</h1>
       {!isLoggedIn && !isLoggingIn && <LoginLink />}
       {isLoggingIn || (isLoggedIn && loading) ? (
         <div className="grid gap-4 grid-cols-3 grid-rows-3">
