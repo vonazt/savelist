@@ -15,7 +15,7 @@ export const PlaylistImage: React.FC<PlaylistImagesProps> = ({
   const [isShowPlayIcon, setIsShowPlayIcon] = useState<boolean>(false);
   return (
     <div className="flex content-center justify-center relative">
-      {isShowPlayIcon && (
+      {(isShowPlayIcon || window.innerWidth <= 640) && (
         <a
           href={openSpotifyUrl}
           target="_blank"

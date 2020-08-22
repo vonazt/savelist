@@ -58,14 +58,20 @@ export const Home: React.FC<{}> = () => {
 
   return (
     <div className="container mx-auto mb-8">
-      <h1 className="text-4xl italic text-center m-5 font-extrabold">Backupify</h1>
+      <h1 className="text-4xl italic text-center m-5 font-extrabold">
+        Backupify
+      </h1>
       {!isLoggedIn && !isLoggingIn && <LoginLink />}
       {isLoggingIn || (isLoggedIn && loading) ? (
-        <div className="grid gap-4 grid-cols-3 grid-rows-3">
-          {Array.from(Array(6), (_, i) => (
-            <LoadingSkeleton key={i} />
-          ))}
-        </div>
+        window.innerWidth < 768 ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className="grid gap-4 grid-cols-3 grid-rows-3">
+            {Array.from(Array(6), (_, i) => (
+              <LoadingSkeleton key={i} />
+            ))}
+          </div>
+        )
       ) : (
         isLoggedIn && (
           <Fragment>
@@ -75,7 +81,7 @@ export const Home: React.FC<{}> = () => {
               setOffset={setOffset}
             />
             <div
-              className={`grid gap-4 grid-cols-3 grid-rows-${Math.ceil(
+              className={`grid gap-4 grid-cols-1 lg:grid-cols-3 lg:grid-rows-${Math.ceil(
                 playlists.offsetPlaylists.length / 3
               )}`}
             >

@@ -7,17 +7,19 @@ import { SavedPlaylist, FormattedPlaylist, SpotifyOwner } from "../../types";
 import { handleGraphQLError } from "../../utils";
 import { LoadingSpinner, LoggedInContext, LoggedInContextProps } from "../";
 
-type PlaylistHederProps = {
+type PlaylistHeaderProps = {
   name: string;
   id: string;
   owner: SpotifyOwner;
+  url: string;
 };
 
-export const PlaylistHeader: React.FC<PlaylistHederProps> = ({
+export const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({
   name,
   id,
   owner,
-}: PlaylistHederProps) => {
+  url,
+}: PlaylistHeaderProps) => {
   const { setIsLoggedIn } = useContext<LoggedInContextProps>(LoggedInContext);
   const [
     savePlaylist,
@@ -49,7 +51,10 @@ export const PlaylistHeader: React.FC<PlaylistHederProps> = ({
   return (
     <div className="relative">
       <h2 className="mx-4 mt-2 italic text-xl font-bold w-8/12 leading-tight">
-        {name}
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          {" "}
+          {name}
+        </a>
       </h2>
       <h4 className="text-sm italic mx-4 mb-4 text-gray-400">
         by{" "}

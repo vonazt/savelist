@@ -25,6 +25,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
             name={playlist.name}
             id={playlist.id}
             owner={playlist.owner}
+            url={playlist.external_urls.spotify}
           />
           <h3 className="mx-4 py-2">
             Tracks: {formatTracksTotal(playlist.tracks.total)}

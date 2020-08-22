@@ -34,7 +34,8 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
   }, [offset]);
 
   useEffect(() => {
-    setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
+    // setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
+    setNumberOfPages(20);
   }, [playlists.filteredPlaylists.length]);
 
   const handleSelectPage = (pageNumber: number): void => {
@@ -60,8 +61,13 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
   const generatePageNumberButtons = (index: number): JSX.Element | null => {
     const pageNumber = index + 2;
     if (pageNumber >= numberOfPages) return null;
-    if (numberOfPages > 10) {
+    if (window.innerWidth > 640 && numberOfPages > 10) {
       if (pageNumber >= currentPage - 3 && pageNumber <= currentPage + 3) {
+        return PageNumberButton(pageNumber);
+      } else return null;
+    }
+    if (window.innerWidth <= 640 && numberOfPages > 6) {
+      if (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1) {
         return PageNumberButton(pageNumber);
       } else return null;
     }
@@ -78,20 +84,28 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
             className="hover:underline"
           >
             <span className="text-spotifyGreen text-xl">{`<<< `}</span>
-            <span className="text-xl italic">Previous</span>
+            {window.innerWidth > 640 && (
+              <span className="text-xl italic">Previous</span>
+            )}
           </button>
         )}
       </div>
       <div className="flex justify-center w-1/3 space-x-4">
         {PageNumberButton(1)}
-        {numberOfPages > 10 && currentPage > 5 && (
-          <span className="px-1 pt-2">...</span>
-        )}
+        {((window.innerWidth <= 640 && numberOfPages > 6 && currentPage > 2) ||
+          (window.innerWidth > 640 &&
+            numberOfPages > 10 &&
+            currentPage > 5)) && <span className="lg:px-1 pt-2">...</span>}
         {Object.keys(Array.apply(0, Array(numberOfPages))).map((_, index) =>
           generatePageNumberButtons(index)
         )}
-        {numberOfPages > 10 && currentPage < numberOfPages - 4 && (
-          <span className="px-1 pt-2">...</span>
+        {((window.innerWidth <= 640 &&
+          numberOfPages > 6 &&
+          currentPage < numberOfPages - 2) ||
+          (window.innerWidth > 640 &&
+            numberOfPages > 10 &&
+            currentPage < numberOfPages - 4)) && (
+          <span className="lg:px-1 pt-2">...</span>
         )}
         {PageNumberButton(numberOfPages)}
       </div>
@@ -102,7 +116,9 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
             className="hover:underline"
             onClick={() => moveOnePage(`next`)}
           >
-            <span className="text-xl italic">Next</span>
+            {window.innerWidth > 640 && (
+              <span className="text-xl italic">Next</span>
+            )}
             <span className="text-spotifyGreen text-xl">{` >>>`}</span>
           </button>
         )}
