@@ -16,22 +16,22 @@ export const PlaylistImage: React.FC<PlaylistImagesProps> = ({
   return (
     <div className="flex content-center justify-center relative">
       {isShowPlayIcon && (
-        <a href={openSpotifyUrl} target="_blank" rel="noopener noreferrer" className="absolute self-center z-10">
-          <FontAwesomeIcon
-            icon={faPlay}
-            size={`3x`}
-            onMouseEnter={() => setIsShowPlayIcon(true)}
-            onMouseLeave={() => setIsShowPlayIcon(false)}
-          />
+        <a
+          href={openSpotifyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute self-center z-10 border-2 p-8 rounded-full bg-black bg-opacity-50"
+          onMouseEnter={() => setIsShowPlayIcon(true)}
+          onMouseLeave={() => setIsShowPlayIcon(false)}
+        >
+          <FontAwesomeIcon icon={faPlay} size={`3x`} />
         </a>
       )}
       <a
         href={openSpotifyUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={`text-transparent rounded bg-no-repeat bg-center hover:opacity-50 ${
-          isShowPlayIcon ? `opacity-50` : ``
-        } bg-cover w-48 h-48 my-2`}
+        className={`text-transparent rounded bg-no-repeat bg-center bg-cover w-48 h-48 my-2`}
         style={{
           backgroundImage: `url(${
             images.length
@@ -41,7 +41,9 @@ export const PlaylistImage: React.FC<PlaylistImagesProps> = ({
         }}
         onMouseEnter={() => setIsShowPlayIcon(true)}
         onMouseLeave={() => setIsShowPlayIcon(false)}
-      >Link to Spotify playlist</a>
+      >
+        Link to Spotify playlist
+      </a>
     </div>
   );
 };
