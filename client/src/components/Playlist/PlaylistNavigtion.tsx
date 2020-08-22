@@ -24,19 +24,23 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
   };
 
   const [numberOfPages, setNumberOfPages] = useState<number>(
-    Math.floor(playlists.filteredPlaylists.length / 12)
+    Math.ceil(playlists.filteredPlaylists.length / 12)
   );
 
-  console.log(
-    "number of pages",
-    Object.keys(Array.apply(0, Array(numberOfPages))).map(
-      (_, index) => index + 1
-    )
-  );
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
-    setNumberOfPages(Math.floor(playlists.filteredPlaylists.length / 12));
+    setCurrentPage(offset / 12 + 1);
+  }, [offset]);
+
+  useEffect(() => {
+    setNumberOfPages(Math.ceil(playlists.filteredPlaylists.length / 12));
   }, [playlists.filteredPlaylists.length]);
+
+  const handleSelectPage = (pageNumber: number): void => {
+    window.scrollTo(0, 0)
+    setOffset(pageNumber * 12);
+  };
 
   return (
     <div className={`mx-4 flex`}>
@@ -53,7 +57,18 @@ export const PlaylistNavigation: React.FC<PlaylistNavigationProps> = ({
       </div>
       <div className="flex justify-center w-1/3 space-x-4">
         {Object.keys(Array.apply(0, Array(numberOfPages))).map((_, index) => (
-          <button className="text-xl" key={index}>{index + 1}</button>
+          <button
+            className={`text-xl italic ${
+              currentPage === index + 1
+                ? `text-gray-600 cursor-default`
+                : `underline`
+            }`}
+            onClick={() => handleSelectPage(index)}
+            key={index}
+            disabled={currentPage === index + 1}
+          >
+            {index + 1}
+          </button>
         ))}
       </div>
       <div className="flex justify-end w-1/3">
