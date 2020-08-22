@@ -63,7 +63,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({
   return (
     <Fragment>
       <div className="border-4 border-spotifyGreen rounded m-4 pb-4">
-        <PlaylistImage images={playlist.images} />
+        <PlaylistImage images={playlist.images} openSpotifyUrl={playlist.external_urls.spotify} />
 
         <div className="divide-y divide-gray-400 mx-4">
           <div className="relative">
