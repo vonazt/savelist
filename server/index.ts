@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
@@ -26,16 +25,17 @@ const start = async () => {
   }
 
   const app = express();
-  app.use(cors({ exposedHeaders: `accessToken` }));
+  app.use(
+    cors({
+      exposedHeaders: `accessToken`,
+      origin: `https://savelist.herokuapp.com `,
+      allowedHeaders: `Origin, X-Requested-With, Content-Type, Accept`,
+    }),
+  );
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use(express.static(path.join(__dirname, 'build')));
 
   app.use('/', authRoutes);
-
-  app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  });
 
   const server = new ApolloServer({
     schema,
