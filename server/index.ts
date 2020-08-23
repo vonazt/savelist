@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
@@ -28,7 +29,13 @@ const start = async () => {
   app.use(cors({ exposedHeaders: `accessToken` }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
+  app.use(express.static(path.join(__dirname, 'build')));
+
   app.use('/', authRoutes);
+
+  app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
 
   const server = new ApolloServer({
     schema,
@@ -47,7 +54,7 @@ const start = async () => {
 
   app.listen({ port: process.env.SERVER_PORT }, () => {
     console.log(
-      `Server listening on http://localhost:${process.env.SERVER_PORT}\nApollo Server listening on http://localhost:${process.env.SERVER_PORT}/graphql`,
+      `Server listening on ${process.env.SERVER_URL}${process.env.SERVER_PORT}\nApollo Server listening on ${process.env.SERVER_URL}${process.env.SERVER_PORT}/graphql`,
     );
   });
 };
