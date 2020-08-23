@@ -6,7 +6,7 @@ export const LoginLink: React.FC<{}> = () => {
   return (
     <div className="flex justify-center">
       <a
-        href="http://localhost:4000/login"
+        href={`${process.env.REACT_APP_SERVER_URL}/login`}
         className="bg-spotifyGreen p-3 rounded-sm"
         onClick={() => setIsLoggingIn(true)}
       >
