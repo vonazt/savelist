@@ -28,8 +28,8 @@ const start = async () => {
   app.use(
     cors({
       exposedHeaders: `accessToken`,
-      origin: `https://savelist.herokuapp.com `,
-      allowedHeaders: `Origin, X-Requested-With, Content-Type, Accept`,
+      // origin: [`https://savelist.herokuapp.com`, `http://localhost:4000/graphql`],
+      // allowedHeaders: `Origin, X-Requested-With, Content-Type, Accept`,
     }),
   );
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -52,9 +52,9 @@ const start = async () => {
 
   server.applyMiddleware({ app, path: '/graphql' });
 
-  app.listen({ port: process.env.SERVER_PORT }, () => {
+  app.listen({ port: process.env.PORT || 4000 }, () => {
     console.log(
-      `Server listening on ${process.env.SERVER_URL}${process.env.SERVER_PORT}\nApollo Server listening on ${process.env.SERVER_URL}${process.env.SERVER_PORT}/graphql`,
+      `Server listening on ${process.env.PORT || 4000}\nApollo Server listening on ${process.env.PORT || 4000}/graphql`,
     );
   });
 };
