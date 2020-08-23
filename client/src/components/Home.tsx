@@ -58,9 +58,12 @@ export const Home: React.FC<{}> = () => {
 
   return (
     <div className="container mx-auto mb-8">
-      <h1 className="text-4xl italic text-center m-5 font-extrabold">
-        Backupify
+      <h1 className="text-4xl italic text-center m-4 lg:m-5 font-extrabold">
+        Savelist
       </h1>
+      <h2 className="lg:text-xl text-center mb-5 italic text-gray-600 font-bold">
+        Save your Spotify playlists as .csv files
+      </h2>
       {!isLoggedIn && !isLoggingIn && <LoginLink />}
       {isLoggingIn || (isLoggedIn && loading) ? (
         window.innerWidth <= 640 ? (
